@@ -1,3 +1,4 @@
+# autoread.vim
 Automatically read files when they've changed. This does what 'autoread'
 promises to do but doesn't do. This plugin requires `+python` or `+python3`.
 

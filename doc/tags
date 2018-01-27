@@ -1,6 +1,6 @@
-:Autoread	auto_autoread.txt	/*:Autoread*
-:AutoreadStop	auto_autoread.txt	/*:AutoreadStop*
-auto-autoread-commands	auto_autoread.txt	/*auto-autoread-commands*
-auto-autoread-introduction	auto_autoread.txt	/*auto-autoread-introduction*
-auto_autoread.txt	auto_autoread.txt	/*auto_autoread.txt*
-b:auto_autoread	auto_autoread.txt	/*b:auto_autoread*
+:Autoread	autoread.txt	/*:Autoread*
+:AutoreadStop	autoread.txt	/*:AutoreadStop*
+auto-autoread-commands	autoread.txt	/*auto-autoread-commands*
+auto-autoread-introduction	autoread.txt	/*auto-autoread-introduction*
+auto_autoread.txt	autoread.txt	/*auto_autoread.txt*
+b:auto_autoread	autoread.txt	/*b:auto_autoread*

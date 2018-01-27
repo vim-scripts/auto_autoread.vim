@@ -1,5 +1,14 @@
-"##########################################################
-" Initialize some stuff
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Check whether python is supported
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if !has('python') && !has('python3')
+    echo "Error: autoread.vim is required vim compiled with pythonx"
+    finish
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Initialize variables
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 scriptencoding utf-8
 if exists('g:loaded_auto_autoread') | finish | endif
 let g:loaded_auto_autoread = 1
@@ -21,25 +30,32 @@ fun! s:start(...)
 		return
 	endif
 
-	let b:auto_autoread = a:0 > 0 ? a:1 : 5
+	let b:auto_autoread = a:0 > 0 ? a:1 : 1
 	setlocal autoread
 
-	if has('python') || has('python3')
+	"if has('python') || has('python3')
 		"let b:auto_autoread_method = 'python'
-		call s:python()
+	"	call s:python()
+	if has('python')
+  		command! -nargs=* Py python <args>
+  		call s:python()
+	elseif has('python3')
+  		command! -nargs=* Py python3 <args>
+  		call s:python()
 	"elseif has('unix')
 	"	let b:auto_autoread_method = 'shell'
 	"	call s:shell()
 	else
-		echoerr "Sorry, but auto_autoread doesn't seem supported on your platform (yet)."
+		echoerr "Sorry, autoread.vim doesn't seem supported on your platform."
 	endif
 endfun
+
 
 " Poll the file every n seconds.
 " Note this is not very fast; we want to use gamin or some such, and this only
 " method only as a fallback...
 fun! s:python()
-python << EOF
+Py << EOF
 import time, vim
 try: import thread
 except ImportError: import _thread as thread # Py3
@@ -80,29 +96,5 @@ endfun
 "	let &shell = l:oldshell
 "endfun
 
-
 let &cpo = s:save_cpo
 unlet s:save_cpo
-
-
-" The MIT License (MIT)
-"
-" Copyright © 2015 Martin Tournoij
-"
-" Permission is hereby granted, free of charge, to any person obtaining a copy
-" of this software and associated documentation files (the "Software"), to
-" deal in the Software without restriction, including without limitation the
-" rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-" sell copies of the Software, and to permit persons to whom the Software is
-" furnished to do so, subject to the following conditions:
-"
-" The above copyright notice and this permission notice shall be included in
-" all copies or substantial portions of the Software.
-"
-" The software is provided "as is", without warranty of any kind, express or
-" implied, including but not limited to the warranties of merchantability,
-" fitness for a particular purpose and noninfringement. In no event shall the
-" authors or copyright holders be liable for any claim, damages or other
-" liability, whether in an action of contract, tort or otherwise, arising
-" from, out of or in connection with the software or the use or other dealings
-" in the software.
