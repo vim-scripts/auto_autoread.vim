@@ -2,8 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import time, vim
+import signal
 try: import thread
 except ImportError: import _thread as thread # Py3
+
+def signal_handler(signal, frame):
+    global interrupted
+    interrupted = True
+
+signal.signal(signal.SIGINT, signal_handler)
+interrupted = False
 
 # Poll the file every n seconds.
 # Note this is not very fast; we want to use gamin or some such, and this only
@@ -17,6 +25,9 @@ def autoread():
 def autoread_loop():
 	buf = vim.current.buffer.number
 	while True:
+		if interrupted:
+			thread.exit()
+			break
 		zzz = vim.buffers[buf].vars['autoread_flag']
 		if zzz == 0:
 			thread.exit()
