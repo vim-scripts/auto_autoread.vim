@@ -12,15 +12,7 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 interrupted = False
-
-# Poll the file every n seconds.
-# Note this is not very fast; we want to use gamin or some such, and this only
-#  method only as a fallback...
-def autoread():
-	vim.command('checktime')
-	vim.command('redraw')
-	# scroll down 10 lines for each refresh
-	vim.command('+10')
+buf = vim.current.buffer.number
 
 def autoread_loop():
 	buf = vim.current.buffer.number
@@ -28,11 +20,23 @@ def autoread_loop():
 		if interrupted:
 			thread.exit()
 			break
-		zzz = vim.buffers[buf].vars['autoread_flag']
+		zzz = vim.buffers[buf].vars['autoread_interval']
 		if zzz == 0:
 			thread.exit()
-		time.sleep(zzz)
+		time.sleep(1)
 		autoread()
+
+def autoread():
+	vim.command('checktime')
+	vim.command('redraw')
+	
+	try:
+		refresh_line_count = vim.buffers[buf].vars['autoread_line_count']
+		# scroll down count of lines for each refresh	
+		vim.command('+%d' % refresh_line_count)
+	except Exception as e:
+		print("cannot refresh lines: " + refresh_line_count + str(e))
+
 
 if __name__ == '__main__':
     thread.start_new_thread(autoread_loop, ())

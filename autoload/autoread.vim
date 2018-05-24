@@ -28,7 +28,6 @@ if s:using_python3 == -1
 endif
 
 
-
 " Initialize variables
 scriptencoding utf-8
 if exists('g:loaded_autoread_flag') | finish | endif
@@ -38,20 +37,33 @@ set cpo&vim
 
 " Enter log monitor mode
 fun! autoread#Init()
+  let b:autoread_cursorline=&cursorline
+  let b:autoread_syntax=&syntax
+
+  "let b:saved_buff = bufnr("%")
   set cursorline
-  hi CursorLine   cterm=NONE ctermbg=darkred ctermfg=white
+  hi CursorLine cterm=NONE ctermbg=darkred ctermfg=white
   set syntax=logtalk
 endfun
 
+func! autoread#Destory()
+  "execute 'buffer ' . b:saved_buff
+  "unlet b:saved_buff
+  let &cursorline = b:autoread_cursorline
+  let &syntax = b:autoread_syntax
+  unlet b:autoread_cursorline
+  unlet b:autoread_syntax
+endfun
 
-" Start Autoread
+
+" Start Autoread, with a param to update the count of lines each time
 fun! autoread#Start(...)
 	if expand('%') == ''
 		echohl ErrorMsg | echomsg 'E32: No file name' | echohl None
 		return
 	endif
 
-	let b:autoread_flag = a:0 > 0 ? a:1 : 1
+	let b:autoread_line_count = ( a:0 > 0 && type( a:1 ) == type(0) ) ? a:1 : 10
 	setlocal autoread
 
 	if has('python') || has('python3')
@@ -64,24 +76,26 @@ fun! autoread#Start(...)
 		echoerr "Oops, autoread.vim doesn't seem supported on your platform."
 	endif
 
+  let b:autoread_interval = 1
   echom "autoread is started."
-  let b:autoread_flag = 1
-  call autoread#Init()
 endfun
 
+" Stop Autoread
 fun! autoread#Stop()
-  let b:autoread_flag = 0
+  let b:autoread_interval = 0
   echom "autoread is stopped."
 endfun
 
 " Use Autoread command with default setting to toggle start/stop.
-fun! autoread#Toggle()
-  if exists('b:autoread_flag') && b:autoread_flag == 1
-    let b:autoread_flag = 0
+fun! autoread#Toggle(...)
+  if exists('b:autoread_interval') && b:autoread_interval == 1
+    let b:autoread_interval = 0
+    call autoread#Destory()
     call autoread#Stop()
   else
-    let b:autoread_flag = 1
-    call autoread#Start()
+    let b:autoread_interval = 1
+    call autoread#Init()
+    call call("autoread#Start", a:000) 
   endif
 endfun
 
@@ -92,25 +106,6 @@ fun! s:python()
   execute s:pyfile_command . s:pyfile
 endfun
 
-
-
-" This is too dysfunctional...
-"fun! s:shell()
-"	if v:servername ==# ''
-"		echoerr 'v:servername is empty; we need a servername for this.'
-"	endif
-"
-"	let l:oldshell = &shell " For maximum compatibility (fish/csh users)
-"	let &shell = '/bin/sh'
-"	let l:cmd = 'vim --servername ' . v:servername . 
-"		\ ' --remote-send "<C-\><C-n>:checktime<CR>" --remote-send "<C-\><C-n>:redraw<CR>"'
-"
-"	" TODO: This doesn't get killed if we quit Vim
-"	" TODO: This also makes us exit insert mode
-"	" TODO: Modifying the b:autoread_flag has no effect
-"	call system('while :; do sleep ' . b:autoread_flag . '; ' . l:cmd . '; done &')  " Note the & at the end
-"	let &shell = l:oldshell
-"endfun
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
