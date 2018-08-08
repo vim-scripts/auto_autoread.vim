@@ -1,4 +1,4 @@
-*auto_autoread.txt* Automatically read files when they've changed. This does
+*autoread.vim.txt* Automatically read files when they've changed. This does
 what 'autoread' promises to do but doesn't do.
 
 ==============================================================================
